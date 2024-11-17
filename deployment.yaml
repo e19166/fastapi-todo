@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fastapi-todo-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fastapi-todo
+  template:
+    metadata:
+      labels:
+        app: fastapi-todo
+    spec:
+      containers:
+      - name: fastapi-todo
+        image: wishula1999/fastapi-todo:latest  
+        ports:
+        - containerPort: 80
+        env:
+        - name: DATABASE_URL
+          value: "sqlite:///./todos.db"  
+        volumeMounts:
+        - name: db-storage
+          mountPath: /todos.db
+      volumes:
+      - name: db-storage
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fastapi-todo-service
+spec:
+  selector:
+    app: fastapi-todo
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: LoadBalancer
